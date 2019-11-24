@@ -1,0 +1,42 @@
+# function returns driving time between two waypoints using Google Maps Distance Matrix API
+# INPUT -------------------------------------------------------------------
+# apiKey                  [str]
+# origin                  [str]
+# destination             [str]
+
+# RETURN ------------------------------------------------------------------
+# drive_tim               [float] (minutes)
+
+def diriveTime(apiKey, origin, destination):
+    import requests
+    url = ('https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins={}&destinations={}&key={}'
+           .format(origin.replace(' ', '+'),
+                   destination.replace(' ', '+'),
+                   apiKey
+                   )
+           )
+    try:
+        response = requests.get(url)
+        resp_json_payload = response.json()
+        drive_time = resp_json_payload['rows'][0]['elements'][0]['duration']['value'] / 60
+    except:
+        print('ERROR: {}, {}'.format(origin, destination))
+        drive_time = 0
+    return drive_time
+
+
+if __name__ == '__main__':
+    #get API key (saved key in local file to keep private)
+    fname = '/Users/masca/Desktop/GoogleMapsAPIKey.txt'
+    file = open(fname, 'r')
+    apiKey = file.read()
+
+    #get coordinates from asking user input (or manually)
+    #origin = '7653 Poplar Pike, Germantown, TN'
+    print('Enter starting location in format: "Street Number" "Street Name", "City", "State"')
+    origin = input()
+    print('Enter destination location in format: "Street Number" "Street Name", "City", "State"')
+    destination = input()
+    #destination = '3720 Alumni Ave, Memphis, TN'
+    drive_time = diriveTime(apiKey, origin, destination)
+    print('Drive Time \nFrom: {}\nTo: {}\nDrive Time (in Minutes):  {} minutes\nDrive Time (in Hours):  {} hr'.format(origin, destination, round(drive_time), round((drive_time/60), 4)))
